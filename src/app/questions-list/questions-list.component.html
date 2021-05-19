@@ -1,0 +1,20 @@
+<ng-container *ngIf="lastQuestion$ | async">
+  <h2>Останнє запитання</h2>
+  <ul>
+    <li>
+      <a [routerLink]="['/', 'question', (lastQuestion$ | async)?.id]">
+        {{ (lastQuestion$ | async)?.text | emptyText }}
+      </a>
+    </li>
+  </ul>
+  <hr />
+</ng-container>
+
+<h2>Усі запитання</h2>
+<ol>
+  <li *ngFor="let question of questions$ | async">
+    <a [routerLink]="['/question', question.id]">
+      {{ question.text | emptyText }}
+    </a>
+  </li>
+</ol>

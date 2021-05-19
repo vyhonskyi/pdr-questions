@@ -1,0 +1,62 @@
+<div class="row">
+  <div class="col-12">
+    {{ (question$ | async)?.text | emptyText }}
+
+    <hr />
+
+    <ng-container *ngIf="(question$ | async)?.imgUrl || '' | questionImageUrl">
+      <img
+        [src]="(question$ | async)?.imgUrl || '' | questionImageUrl"
+        class="img-fluid mx-auto d-block"
+      />
+
+      <hr />
+    </ng-container>
+
+    <ol>
+      <li *ngFor="let answer of (question$ | async)?.answers">
+        <ng-container
+          *ngIf="isShowRightAnswer && answer.isRight; else notRight"
+        >
+          <strong>{{ answer.text | emptyText }}</strong>
+        </ng-container>
+
+        <ng-template #notRight>{{ answer.text | emptyText }}</ng-template>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<hr />
+
+<div class="row">
+  <div class="col-12 text-center">
+    <button type="button" class="btn btn-primary" (click)="toggleAnswer()">
+      {{
+        isShowRightAnswer
+          ? "Сховати правильну відповідь"
+          : "Показати правильну відповідь"
+      }}
+    </button>
+  </div>
+</div>
+
+<hr />
+
+<div class="row">
+  <div class="col-6">
+    <a
+      *ngIf="(prevNextQuestions$ | async)?.prev"
+      [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.prev?.id]"
+      >{{ (prevNextQuestions$ | async)?.prev?.text | emptyText }}</a
+    >
+  </div>
+
+  <div class="col-6">
+    <a
+      *ngIf="(prevNextQuestions$ | async)?.next"
+      [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.next?.id]"
+      >{{ (prevNextQuestions$ | async)?.next?.text | emptyText }}</a
+    >
+  </div>
+</div>
