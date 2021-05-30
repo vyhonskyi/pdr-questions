@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { map, share, tap } from 'rxjs/operators';
+import { filter, map, share, tap } from 'rxjs/operators';
 import { QuestionModel } from './models';
 
 @Injectable({
@@ -10,16 +10,28 @@ import { QuestionModel } from './models';
 export class QuestionsService {
   private lastQuestionId$ = new BehaviorSubject<string | null>(localStorage.getItem('LastQuestionId'));
   private questions: QuestionModel[];
+  private wrongAnswerQuestions: WrongAnswerQuestionModel[];
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    const wrongAnswerQuestionsStr = localStorage.getItem('WrongAnswerQuestions');
+    this.wrongAnswerQuestions = (wrongAnswerQuestionsStr || '').trim() !== '' ? JSON.parse(wrongAnswerQuestionsStr) : [];
+  }
 
   getQuestions(): Observable<QuestionModel[]> {
     if (this.questions) { return of(this.questions); }
 
     return this.http.get<QuestionModel[]>('assets/questions.json')
       .pipe(
-        map(questions => questions.sort((a, b) => parseInt(/\d+/gm.exec(a.id)[0]) - parseInt(/\d+/gm.exec(b.id)[0]))),
+        map(questions => questions.map(q => new QuestionModel(q))),
+        map(questions => questions.sort((a, b) => a.numericId - b.numericId)),
         tap(questions => this.questions = questions)
+      );
+  }
+
+  getWrongAnswerQuestions(): Observable<QuestionModel[]> {
+    return this.getQuestions()
+      .pipe(
+        map(questions => questions.filter(q => this.wrongAnswerQuestions.some(x => x.questionId == q.id)))
       );
   }
 
@@ -52,6 +64,22 @@ export class QuestionsService {
       )
   }
 
+  getPrevNextWrongQuestions(id: string): Observable<PrevNextQuestionsModel> {
+    return this.getWrongAnswerQuestions()
+      .pipe(
+        map(questions => {
+          const idx = questions.findIndex(x => x.id == id);
+          const prevIdx = idx - 1;
+          const nextIdx = idx + 1;
+
+          return {
+            prev: prevIdx >= 0 ? questions[prevIdx] : null,
+            next: nextIdx < questions.length ? questions[nextIdx] : null
+          } as PrevNextQuestionsModel;
+        })
+      )
+  }
+
   setLastQuestionId(id: string): void {
     localStorage.setItem('LastQuestionId', id);
     this.lastQuestionId$.next(id);
@@ -67,9 +95,26 @@ export class QuestionsService {
         })
       );
   }
+
+  addWrongAnswerQuestion(questionId: string): void {
+    let index = this.wrongAnswerQuestions.findIndex(x => x.questionId === questionId);
+
+    if (index >= 0) {
+      this.wrongAnswerQuestions[index].wrongAnswerCount++;
+    } else {
+      this.wrongAnswerQuestions.push({ questionId: questionId, wrongAnswerCount: 1 });
+    }
+
+    localStorage.setItem('WrongAnswerQuestions', JSON.stringify(this.wrongAnswerQuestions));
+  }
 }
 
 export interface PrevNextQuestionsModel {
   prev?: QuestionModel;
   next?: QuestionModel;
+}
+
+export interface WrongAnswerQuestionModel {
+  questionId: string;
+  wrongAnswerCount: number;
 }

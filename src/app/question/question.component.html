@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-12">
-    {{ (question$ | async)?.text | emptyText }}
+    {{ (question$ | async)?.title | emptyText }}
 
     <hr />
 
@@ -13,15 +13,22 @@
       <hr />
     </ng-container>
 
-    <ol>
+    <ol class="answers">
       <li *ngFor="let answer of (question$ | async)?.answers">
-        <ng-container
-          *ngIf="isShowRightAnswer && answer.isRight; else notRight"
+        <button
+          type="button"
+          class="btn"
+          [class.btn-light]="
+            (rightAnswerId$ | async) !== answer.id &&
+            (wrongAnswerId$ | async) !== answer.id
+          "
+          [class.btn-success]="(rightAnswerId$ | async) === answer.id"
+          [class.btn-danger]="(wrongAnswerId$ | async) === answer.id"
+          [disabled]="selectedAnswerId$ | async"
+          (click)="checkAnswer(answer.id)"
         >
-          <strong>{{ answer.text | emptyText }}</strong>
-        </ng-container>
-
-        <ng-template #notRight>{{ answer.text | emptyText }}</ng-template>
+          {{ answer.text | emptyText }}
+        </button>
       </li>
     </ol>
   </div>
@@ -31,12 +38,8 @@
 
 <div class="row">
   <div class="col-12 text-center">
-    <button type="button" class="btn btn-primary" (click)="toggleAnswer()">
-      {{
-        isShowRightAnswer
-          ? "Сховати правильну відповідь"
-          : "Показати правильну відповідь"
-      }}
+    <button type="button" class="btn btn-primary" (click)="saveAsWrong()">
+      Зберегти для повторення
     </button>
   </div>
 </div>
@@ -48,7 +51,7 @@
     <a
       *ngIf="(prevNextQuestions$ | async)?.prev"
       [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.prev?.id]"
-      >{{ (prevNextQuestions$ | async)?.prev?.text | emptyText }}</a
+      >{{ (prevNextQuestions$ | async)?.prev?.title | emptyText }}</a
     >
   </div>
 
@@ -56,7 +59,7 @@
     <a
       *ngIf="(prevNextQuestions$ | async)?.next"
       [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.next?.id]"
-      >{{ (prevNextQuestions$ | async)?.next?.text | emptyText }}</a
+      >{{ (prevNextQuestions$ | async)?.next?.title | emptyText }}</a
     >
   </div>
 </div>
