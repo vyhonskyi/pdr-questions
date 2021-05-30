@@ -50,7 +50,12 @@
   <div class="col-6">
     <a
       *ngIf="(prevNextQuestions$ | async)?.prev"
-      [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.prev?.id]"
+      [routerLink]="[
+        '/',
+        'question',
+        (prevNextQuestions$ | async)?.prev?.id,
+        route.snapshot.params['wrongAnswerQuestions'] || ''
+      ]"
       >{{ (prevNextQuestions$ | async)?.prev?.title | emptyText }}</a
     >
   </div>
@@ -58,7 +63,12 @@
   <div class="col-6">
     <a
       *ngIf="(prevNextQuestions$ | async)?.next"
-      [routerLink]="['/', 'question', (prevNextQuestions$ | async)?.next?.id]"
+      [routerLink]="[
+        '/',
+        'question',
+        (prevNextQuestions$ | async)?.next?.id,
+        route.snapshot.params['wrongAnswerQuestions'] || ''
+      ]"
       >{{ (prevNextQuestions$ | async)?.next?.title | emptyText }}</a
     >
   </div>

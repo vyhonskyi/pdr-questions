@@ -20,7 +20,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     private questionsService: QuestionsService
   ) {
 
