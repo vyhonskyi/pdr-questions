@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import { QuestionModel } from '../models';
 import { QuestionsService } from '../questions.service';
@@ -13,14 +14,17 @@ export class QuestionsListComponent implements OnInit {
   questions$: Observable<QuestionModel[]>;
   wrongAnswerQuestions$: Observable<QuestionModel[]>;
 
-  constructor(private questionsService: QuestionsService) {
+  constructor(
+    private questionsService: QuestionsService,
+    private title: Title
+  ) {
     this.questions$ = this.questionsService.getQuestions();
     this.wrongAnswerQuestions$ = this.questionsService.getWrongAnswerQuestions();
     this.lastQuestion$ = this.questionsService.getLastQuestion$();
   }
 
   ngOnInit(): void {
-
+    this.title.setTitle('Відповіді на тести ПДР')
   }
 
 }

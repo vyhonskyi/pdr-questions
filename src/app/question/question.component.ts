@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
@@ -21,7 +22,8 @@ export class QuestionComponent implements OnInit, OnDestroy {
 
   constructor(
     public route: ActivatedRoute,
-    private questionsService: QuestionsService
+    private questionsService: QuestionsService,
+    private title: Title
   ) {
 
     this.question$ = this.route.paramMap
@@ -35,6 +37,9 @@ export class QuestionComponent implements OnInit, OnDestroy {
           if (!id) { throw new Error('id is null.'); }
           return this.questionsService.getQuestionById(id);
         }),
+        tap(question => {
+          this.title.setTitle(`${question.title.substr(0, 50)}... - Відповіді на тести ПДР`);
+        })
       );
 
     this.prevNextQuestions$ = this.route.paramMap

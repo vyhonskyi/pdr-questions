@@ -10,7 +10,7 @@
   <hr />
 </ng-container>
 
-<ng-container *ngIf="(wrongAnswerQuestions$ | async).length">
+<ng-container *ngIf="(wrongAnswerQuestions$ | async)?.length">
   <h2>Запитання для повторення</h2>
   <ul>
     <li *ngFor="let question of wrongAnswerQuestions$ | async">
