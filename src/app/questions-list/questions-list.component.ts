@@ -18,7 +18,7 @@ export class QuestionsListComponent implements OnInit {
     private questionsService: QuestionsService,
     private title: Title
   ) {
-    this.questions$ = this.questionsService.getQuestions();
+    this.questions$ = this.questionsService.getQuestionsSorted();
     this.wrongAnswerQuestions$ = this.questionsService.getWrongAnswerQuestions();
     this.lastQuestion$ = this.questionsService.getLastQuestion$();
   }

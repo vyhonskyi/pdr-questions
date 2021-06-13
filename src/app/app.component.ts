@@ -15,14 +15,9 @@ declare let gtag: Function;
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  questions$: Observable<QuestionModel[]>;
   private routerEventsSubscription: Subscription;
 
-  constructor(
-    private questionsService: QuestionsService,
-    private router: Router,
-  ) {
-    this.questions$ = this.questionsService.getQuestions();
+  constructor(private router: Router) {
   }
 
   ngOnInit(): void {

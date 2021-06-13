@@ -17,21 +17,32 @@ export class QuestionsService {
     this.wrongAnswerQuestions = (wrongAnswerQuestionsStr || '').trim() !== '' ? JSON.parse(wrongAnswerQuestionsStr) : [];
   }
 
-  getQuestions(): Observable<QuestionModel[]> {
+  private getQuestions(): Observable<QuestionModel[]> {
     if (this.questions) { return of(this.questions); }
 
     return this.http.get<QuestionModel[]>('assets/questions.json')
       .pipe(
         map(questions => questions.map(q => new QuestionModel(q))),
-        map(questions => questions.sort((a, b) => a.numericId - b.numericId)),
         tap(questions => this.questions = questions)
+      );
+  }
+
+  getQuestionsSorted(): Observable<QuestionModel[]> {
+    return this.getQuestions()
+      .pipe(
+        map(questions => questions.sort((a, b) => a.numericId - b.numericId)),
       );
   }
 
   getWrongAnswerQuestions(): Observable<QuestionModel[]> {
     return this.getQuestions()
       .pipe(
-        map(questions => questions.filter(q => this.wrongAnswerQuestions.some(x => x.questionId == q.id)))
+        map(questions => questions.filter(q => this.wrongAnswerQuestions.some(x => x.questionId == q.id))),
+        map(questions => questions.sort((a, b) => {
+          const aIndex = this.wrongAnswerQuestions.sort((wa, wb) => wa.wrongAnswerCount - wb.wrongAnswerCount).findIndex(x => x.questionId === a.id);
+          const bIndex = this.wrongAnswerQuestions.sort((wa, wb) => wa.wrongAnswerCount - wb.wrongAnswerCount).findIndex(x => x.questionId === b.id);
+          return bIndex - aIndex;
+        })),
       );
   }
 
