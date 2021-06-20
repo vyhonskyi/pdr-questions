@@ -10,6 +10,7 @@ import { QuestionModel } from './models';
 export class QuestionsService {
   private lastQuestionId$ = new BehaviorSubject<string | null>(localStorage.getItem('LastQuestionId'));
   private questions: QuestionModel[];
+  private randomQuestions: QuestionModel[];
   private wrongAnswerQuestions: WrongAnswerQuestionModel[];
 
   constructor(private http: HttpClient) {
@@ -23,7 +24,19 @@ export class QuestionsService {
     return this.http.get<QuestionModel[]>('assets/questions.json')
       .pipe(
         map(questions => questions.map(q => new QuestionModel(q))),
-        tap(questions => this.questions = questions)
+        tap(questions => {
+          this.questions = questions;
+        })
+      );
+  }
+
+  public getRandomQuestions(): Observable<QuestionModel[]> {
+    if (this.randomQuestions) { return of(this.randomQuestions); }
+
+    return this.getQuestions()
+      .pipe(
+        map(questions => this.shuffle(questions)),
+        tap(questions => this.randomQuestions = questions)
       );
   }
 
@@ -91,6 +104,22 @@ export class QuestionsService {
       )
   }
 
+  getPrevNextRandomQuestions(id: string): Observable<PrevNextQuestionsModel> {
+    return this.getRandomQuestions()
+      .pipe(
+        map(questions => {
+          const idx = questions.findIndex(x => x.id == id);
+          const prevIdx = idx - 1;
+          const nextIdx = idx + 1;
+
+          return {
+            prev: prevIdx >= 0 ? questions[prevIdx] : null,
+            next: nextIdx < questions.length ? questions[nextIdx] : null
+          } as PrevNextQuestionsModel;
+        })
+      )
+  }
+
   setLastQuestionId(id: string): void {
     localStorage.setItem('LastQuestionId', id);
     this.lastQuestionId$.next(id);
@@ -117,6 +146,25 @@ export class QuestionsService {
     }
 
     localStorage.setItem('WrongAnswerQuestions', JSON.stringify(this.wrongAnswerQuestions));
+  }
+
+  private shuffle(array: any[]): any[] {
+    var currentIndex: number = array.length;
+    var randomIndex: number;
+    // While there remain elements to shuffle...
+
+    while (0 !== currentIndex) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
   }
 }
 

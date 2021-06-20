@@ -8,6 +8,7 @@ import { QuestionComponent } from './question/question.component';
 import { QuestionImageUrlPipe } from './question-image-url.pipe';
 import { QuestionsListComponent } from './questions-list/questions-list.component';
 import { EmptyTextPipe } from './empty-text.pipe';
+import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { EmptyTextPipe } from './empty-text.pipe';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbAccordionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

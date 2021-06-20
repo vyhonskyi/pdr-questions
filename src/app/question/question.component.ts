@@ -6,6 +6,12 @@ import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { QuestionModel } from '../models';
 import { PrevNextQuestionsModel, QuestionsService } from '../questions.service';
 
+export enum QuestionsSourceTypes {
+  Default = 'default',
+  Wrong = 'wrong',
+  Random = 'random'
+}
+
 @Component({
   selector: 'app-question',
   templateUrl: './question.component.html',
@@ -44,13 +50,20 @@ export class QuestionComponent implements OnInit, OnDestroy {
 
     this.prevNextQuestions$ = this.route.paramMap
       .pipe(
-        map(params => [params.get('id'), params.get('wrongAnswerQuestions')]),
-        switchMap(([id, wrongAnswerQuestions]) => {
+        map(params => [params.get('id'), params.get('questionsSource')]),
+        switchMap(([id, questionsSource]: [string, QuestionsSourceTypes]) => {
           if (!id) { throw new Error('id is null.'); }
 
-          return wrongAnswerQuestions === 'true'
-            ? this.questionsService.getPrevNextWrongQuestions(id)
-            : this.questionsService.getPrevNextQuestions(id);
+          switch (questionsSource) {
+            case QuestionsSourceTypes.Default:
+              return this.questionsService.getPrevNextQuestions(id);
+            case QuestionsSourceTypes.Wrong:
+              return this.questionsService.getPrevNextWrongQuestions(id)
+            case QuestionsSourceTypes.Random:
+              return this.questionsService.getPrevNextRandomQuestions(id);
+            default:
+              throw new Error(`Unknown QuestionsSourceTypes value "${questionsSource}".`)
+          }
         })
       );
 

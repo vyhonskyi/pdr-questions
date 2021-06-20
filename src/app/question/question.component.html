@@ -54,7 +54,7 @@
         '/',
         'question',
         (prevNextQuestions$ | async)?.prev?.id,
-        route.snapshot.params['wrongAnswerQuestions'] || ''
+        route.snapshot.params['questionsSource']
       ]"
       >{{ (prevNextQuestions$ | async)?.prev?.title | emptyText }}</a
     >
@@ -67,7 +67,7 @@
         '/',
         'question',
         (prevNextQuestions$ | async)?.next?.id,
-        route.snapshot.params['wrongAnswerQuestions'] || ''
+        route.snapshot.params['questionsSource']
       ]"
       >{{ (prevNextQuestions$ | async)?.next?.title | emptyText }}</a
     >
