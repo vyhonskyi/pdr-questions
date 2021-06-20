@@ -60,6 +60,14 @@
 
   <ngb-panel title="Запитання у випадковому порядку">
     <ng-template ngbPanelContent>
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="shuffleRandomQuestions()"
+      >
+        Перемішати
+      </button>
+
       <ul>
         <li *ngFor="let question of randomQuestions$ | async">
           <a

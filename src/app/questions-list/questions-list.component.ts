@@ -32,4 +32,7 @@ export class QuestionsListComponent implements OnInit {
     this.title.setTitle('Відповіді на тести ПДР')
   }
 
+  shuffleRandomQuestions(): void {
+    this.questionsService.shuffleRandomQuestions().subscribe();
+  }
 }

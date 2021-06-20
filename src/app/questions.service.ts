@@ -10,12 +10,15 @@ import { QuestionModel } from './models';
 export class QuestionsService {
   private lastQuestionId$ = new BehaviorSubject<string | null>(localStorage.getItem('LastQuestionId'));
   private questions: QuestionModel[];
-  private randomQuestions: QuestionModel[];
   private wrongAnswerQuestions: WrongAnswerQuestionModel[];
+  private randomQuestionsOrder$ = new BehaviorSubject<string[]>([]);
 
   constructor(private http: HttpClient) {
     const wrongAnswerQuestionsStr = localStorage.getItem('WrongAnswerQuestions');
     this.wrongAnswerQuestions = (wrongAnswerQuestionsStr || '').trim() !== '' ? JSON.parse(wrongAnswerQuestionsStr) : [];
+
+    const randomQuestionsOrderStr = localStorage.getItem('RandomQuestionsOrder');
+    this.randomQuestionsOrder$.next((randomQuestionsOrderStr || '').trim() !== '' ? JSON.parse(randomQuestionsOrderStr) : []);
   }
 
   private getQuestions(): Observable<QuestionModel[]> {
@@ -31,12 +34,28 @@ export class QuestionsService {
   }
 
   public getRandomQuestions(): Observable<QuestionModel[]> {
-    if (this.randomQuestions) { return of(this.randomQuestions); }
+    return combineLatest([this.getQuestions(), this.randomQuestionsOrder$])
+      .pipe(
+        map(([questions, randomQuestionsOrder]) => {
+          if (!randomQuestionsOrder.length) {
+            randomQuestionsOrder = this.shuffle(questions.map(x => x.id));
+            localStorage.setItem('RandomQuestionsOrder', JSON.stringify(randomQuestionsOrder));
+          }
 
+          return questions.sort((a, b) => randomQuestionsOrder.findIndex(id => id === a.id) - randomQuestionsOrder.findIndex(id => id === b.id));
+        })
+      );
+  }
+
+  public shuffleRandomQuestions(): Observable<void> {
     return this.getQuestions()
       .pipe(
-        map(questions => this.shuffle(questions)),
-        tap(questions => this.randomQuestions = questions)
+        tap(questions => {
+          const randomQuestionsOrder = this.shuffle(questions.map(x => x.id));
+          this.randomQuestionsOrder$.next(randomQuestionsOrder);
+          localStorage.setItem('RandomQuestionsOrder', JSON.stringify(randomQuestionsOrder));
+        }),
+        map(() => { })
       );
   }
 
