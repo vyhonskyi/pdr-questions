@@ -71,8 +71,8 @@ export class QuestionsService {
       .pipe(
         map(questions => questions.filter(q => this.wrongAnswerQuestions.some(x => x.questionId == q.id))),
         map(questions => questions.sort((a, b) => {
-          const aIndex = this.wrongAnswerQuestions.sort((wa, wb) => wa.wrongAnswerCount - wb.wrongAnswerCount).findIndex(x => x.questionId === a.id);
-          const bIndex = this.wrongAnswerQuestions.sort((wa, wb) => wa.wrongAnswerCount - wb.wrongAnswerCount).findIndex(x => x.questionId === b.id);
+          const aIndex = this.wrongAnswerQuestions.findIndex(x => x.questionId === a.id);
+          const bIndex = this.wrongAnswerQuestions.findIndex(x => x.questionId === b.id);
           return bIndex - aIndex;
         })),
       );
