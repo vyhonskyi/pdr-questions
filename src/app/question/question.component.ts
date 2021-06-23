@@ -9,7 +9,8 @@ import { PrevNextQuestionsModel, QuestionsService } from '../questions.service';
 export enum QuestionsSourceTypes {
   Default = 'default',
   Wrong = 'wrong',
-  Random = 'random'
+  Random = 'random',
+  Static = 'static'
 }
 
 @Component({
@@ -61,6 +62,8 @@ export class QuestionComponent implements OnInit, OnDestroy {
               return this.questionsService.getPrevNextWrongQuestions(id)
             case QuestionsSourceTypes.Random:
               return this.questionsService.getPrevNextRandomQuestions(id);
+            case QuestionsSourceTypes.Static:
+              return this.questionsService.getPrevNextStaticQuestions(id);
             default:
               throw new Error(`Unknown QuestionsSourceTypes value "${questionsSource}".`)
           }
